@@ -8,7 +8,7 @@
   // ======================================================================
   // CONFIGURAÇÃO
   // ======================================================================
-  const SITE_URL = 'https://jh.playground.tec.br'; // endereço público do jogo (ex.: 'https://seudominio.com'); vazio = usa o endereço atual
+  const SITE_URL = 'https://eziolemes.github.io/jhgame/'; // endereço público do jogo (GitHub Pages); vazio = usa o endereço atual
   const REPO_URL = 'https://github.com/eziolemes/jhgame'; // código-fonte do projeto (botão GITHUB)
   const W = 960, H = 540;
   const FLOOR_TOP = 182, FLOOR_BOT = 524;
