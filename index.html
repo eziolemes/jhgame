@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<title>Corre, Jensen!</title>
+<meta name="description" content="Jensen precisa fugir das espiãs, do Congresso e dos paparazzi sem perder a jaqueta de couro. Jogo de meme satírico, grátis, no celular ou no PC." />
+<!-- Prévia de link (WhatsApp, X, Telegram...). Depois de publicar, troque as URLs relativas pelas absolutas do seu domínio. -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Corre, Jensen!" />
+<meta property="og:locale" content="pt_BR" />
+<meta property="og:title" content="Corre, Jensen!" />
+<meta property="og:description" content="Fuja das espiãs, do Congresso e dos paparazzi sem perder a jaqueta. Jogo de meme satírico e grátis." />
+<meta property="og:image" content="assets/og.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Um CEO de jaqueta de couro correndo de espiãs glamourosas de vestido e salto alto." />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Corre, Jensen!" />
+<meta name="twitter:description" content="Fuja das espiãs, do Congresso e dos paparazzi sem perder a jaqueta." />
+<meta name="twitter:image" content="assets/og.png" />
+<meta name="theme-color" content="#07080a" />
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Corre, Jensen" />
+<link rel="apple-touch-icon" href="assets/icon-180.png" />
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div id="stage">
+  <div id="frame">
+    <canvas id="game" aria-label="Corre, Jensen! — área do jogo"></canvas>
+
+    <!-- HUD -->
+    <div id="hud" class="off">
+      <div id="hud-left">
+        <div id="lives" aria-label="Jaquetas restantes"></div>
+        <div id="powers">
+          <div id="turbo" class="pill"><span>TURBO</span><i><b></b></i></div>
+          <div id="gpus" class="pill">GPU <b>×3</b></div>
+          <div id="shield" class="pill gold">MEMO</div>
+        </div>
+      </div>
+      <div id="progress-wrap">
+        <div id="progress-label">FASE 1 · KEYNOTE</div>
+        <div id="progress">
+          <div id="progress-fill"></div>
+          <div class="tick" style="left:25%"></div>
+          <div class="tick" style="left:50%"></div>
+          <div class="tick" style="left:75%"></div>
+          <div id="prog-dot"></div>
+        </div>
+        <div id="ticklabels">
+          <span style="left:12.5%">KEYNOTE</span><span style="left:37.5%">CAMPUS</span><span style="left:62.5%">DINER</span><span style="left:87.5%">CAPITÓLIO</span>
+        </div>
+      </div>
+      <div id="hud-right">
+        <div id="chips"><i class="chip-ico"></i><b>0</b></div>
+        <div id="hud-btns">
+          <button id="btn-pause" class="hud-btn" aria-label="Pausar">❚❚</button>
+          <button id="btn-mute" class="hud-btn" aria-label="Som">🔊</button>
+        </div>
+      </div>
+    </div>
+    <div id="alert-tag">⚠ ALVO AVISTADO</div>
+    <div id="toast"></div>
+
+    <!-- controles de toque -->
+    <div id="touch-ui">
+      <button id="btn-gpu" class="tbtn" aria-label="Isca de GPU">GPU<small>×3</small></button>
+      <button id="btn-dash" class="tbtn" aria-label="Jaqueta Turbo"><span>TURBO</span><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" /></svg></button>
+    </div>
+
+    <!-- MENU -->
+    <div id="menu" class="overlay show">
+      <div class="panel left">
+        <div class="kicker">JOGO DE MEME · GRÁTIS · SÁTIRA</div>
+        <h1>CORRE,<br /><span>JENSEN!</span></h1>
+        <p class="sub">Fuja das espiãs, do Congresso e dos paparazzi. Só não perca a jaqueta.</p>
+        <div class="diffs" role="radiogroup" aria-label="Dificuldade">
+          <button data-diff="facil">FÁCIL</button>
+          <button data-diff="normal">NORMAL</button>
+          <button data-diff="dificil">DIFÍCIL</button>
+        </div>
+        <div class="row">
+          <button id="btn-start" class="big">CORRER ▸</button>
+          <button id="btn-fs" class="ghost">⛶ TELA CHEIA</button>
+        </div>
+        <div class="controls only-desktop">
+          <kbd>WASD</kbd>/<kbd>setas</kbd> mover · <kbd>Espaço</kbd> Jaqueta Turbo · <kbd>E</kbd> isca de GPU · <kbd>M</kbd> som · <kbd>Esc</kbd> pausa
+        </div>
+        <div class="controls only-touch">
+          Arraste no lado esquerdo para mover · botões à direita: <b>TURBO</b> e <b>GPU</b>
+        </div>
+        <div class="best">Recorde: <b id="best">—</b></div>
+        <p class="disclaimer">Paródia e sátira, sem vínculo com a Nvidia nem com qualquer pessoa retratada. As alegações citadas foram noticiadas pela imprensa e estão sob investigação.</p>
+      </div>
+    </div>
+
+    <!-- MANCHETE DE FASE -->
+    <div id="card" class="overlay">
+      <div class="panel paper">
+        <div class="masthead"><span>O DIÁRIO DO SILÍCIO</span><span id="card-edition">EDIÇÃO EXTRA</span></div>
+        <div class="kicker red" id="card-kicker">FASE 1 · KEYNOTE</div>
+        <h2 id="card-headline">Manchete</h2>
+        <p id="card-tip" class="tip">Dica</p>
+        <button id="btn-go" class="big">CORRER ▸</button>
+      </div>
+    </div>
+
+    <!-- PAUSA -->
+    <div id="pause" class="overlay">
+      <div class="panel center">
+        <div class="kicker">PAUSA</div>
+        <h2>Respira, Jensen.</h2>
+        <p class="sub">As espiãs também estão esperando.</p>
+        <div class="row">
+          <button id="btn-resume" class="big">CONTINUAR ▸</button>
+          <button id="btn-quit" class="ghost">MENU</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FIM DE JOGO -->
+    <div id="over" class="overlay">
+      <div class="panel center">
+        <div class="kicker red">FIM DA LINHA</div>
+        <h2 class="huge">PEGO!</h2>
+        <p class="quote" id="over-quote"></p>
+        <p class="note" id="over-note"></p>
+        <div class="statline" id="over-stats"></div>
+        <div class="row">
+          <button id="btn-retry" class="big">TENTAR DE NOVO</button>
+          <button id="btn-menu1" class="ghost">MENU</button>
+        </div>
+        <div class="share"></div>
+      </div>
+    </div>
+
+    <!-- VITÓRIA -->
+    <div id="win" class="overlay">
+      <div class="panel center">
+        <div class="kicker green">VOCÊ ESCAPOU</div>
+        <h2>Chegou em casa.</h2>
+        <p class="quote">Agora vem a parte difícil: explicar pra esposa.</p>
+        <div class="rank" id="win-rank"></div>
+        <div class="statline" id="win-stats"></div>
+        <div class="row">
+          <button id="btn-again" class="big">JOGAR DE NOVO</button>
+          <button id="btn-menu2" class="ghost">MENU</button>
+        </div>
+        <div class="share"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- celular em pé -->
+<div id="rotate">
+  <div class="phone"></div>
+  <p><b>Gire o celular</b><br />O jogo é na horizontal.</p>
+</div>
+
+<script src="sprites.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

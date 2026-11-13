@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Corre, Jensen! — gerador de imagens</title>
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+<style>
+  body { margin: 0; background: #1b1c20; color: #ddd; font-family: system-ui, sans-serif; }
+  canvas { display: block; max-width: 100%; height: auto; }
+  .bar { padding: 12px 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; font-size: 14px; }
+  .bar button { padding: 8px 14px; font-weight: 700; background: #7dff3a; border: 0; border-radius: 4px; cursor: pointer; }
+  .bar a { color: #7dff3a; }
+  body.clean .bar { display: none; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="bar">
+  <button id="dl">Baixar PNG</button>
+  <a href="?">imagem de compartilhamento (1200×630)</a>
+  <a href="?icon=512">ícone 512</a>
+  <a href="?icon=192">ícone 192</a>
+  <a href="?icon=180">ícone 180 (iPhone)</a>
+  <span>Salve em <code>assets/</code> como og.png, icon-512.png, icon-192.png e icon-180.png.</span>
+</div>
+<script src="sprites.js"></script>
+<script>
+'use strict';
+(() => {
+  const q = new URLSearchParams(location.search);
+  const icon = parseInt(q.get('icon'), 10) || 0;
+  if (q.has('clean')) document.body.classList.add('clean');
+  const c = document.getElementById('c'), ctx = c.getContext('2d');
+  const TITLE = '"Arial Black", Impact, "Segoe UI Black", Roboto, sans-serif';
+
+  function glowBg(w, h, cx, cy) {
+    ctx.fillStyle = '#07080a'; ctx.fillRect(0, 0, w, h);
+    const g = ctx.createRadialGradient(cx, cy, 10, cx, cy, Math.max(w, h) * 0.7);
+    g.addColorStop(0, 'rgba(125,255,58,0.35)'); g.addColorStop(0.45, 'rgba(125,255,58,0.08)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+  }
+
+  function drawIcon(n) {
+    c.width = c.height = n;
+    const s = n / 512;
+    ctx.save(); ctx.scale(s, s);
+    glowBg(512, 512, 256, 230);
+    ctx.strokeStyle = 'rgba(125,255,58,0.25)'; ctx.lineWidth = 6;
+    for (let i = 0; i < 7; i++) { ctx.beginPath(); ctx.moveTo(-40 + i * 30, 360 + i * 22); ctx.lineTo(120 + i * 18, 360 + i * 22); ctx.stroke(); }
+    SPR.jensen(ctx, 268, 470, { scale: 6.4, face: 1, t: 0.35, moving: true, worried: true });
+    ctx.restore();
+  }
+
+  function drawOG() {
+    c.width = 1200; c.height = 630;
+    glowBg(1200, 630, 860, 330);
+    // piso
+    const fg = ctx.createLinearGradient(0, 470, 0, 630);
+    fg.addColorStop(0, '#1a1d25'); fg.addColorStop(1, '#0b0d12');
+    ctx.fillStyle = fg; ctx.fillRect(0, 470, 1200, 160);
+    ctx.fillStyle = '#7dff3a'; ctx.fillRect(0, 467, 1200, 4);
+    // linhas de velocidade
+    ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 3;
+    for (let i = 0; i < 9; i++) { const y = 250 + i * 34; ctx.beginPath(); ctx.moveTo(560 + (i % 3) * 30, y); ctx.lineTo(700 + (i % 3) * 30, y); ctx.stroke(); }
+    // perseguidoras
+    SPR.spy(ctx, 700, 560, { scale: 3.1, face: 1, t: 0.2, moving: true, kind: 'fan', skin: '#f1cfb0', hair: '#0f0d12', look: 0 });
+    SPR.spy(ctx, 600, 600, { scale: 3.1, face: 1, t: 0.9, moving: true, kind: 'diner', skin: '#e2b892', hair: '#16121a' });
+    SPR.jensen(ctx, 980, 590, { scale: 4.2, face: 1, t: 0.35, moving: true, worried: true });
+    SPR.chip(ctx, 1110, 470, 0);
+    ctx.save(); ctx.translate(1140, 380); ctx.scale(1.6, 1.6); SPR.chip(ctx, 0, 0, 1); ctx.restore();
+    // título
+    ctx.save();
+    ctx.transform(1, 0, -0.12, 1, 0, 0);
+    ctx.font = `900 118px ${TITLE}`;
+    ctx.fillStyle = '#000'; ctx.fillText('CORRE,', 86, 196);
+    ctx.fillStyle = '#f2efe8'; ctx.fillText('CORRE,', 80, 190);
+    ctx.fillStyle = '#000'; ctx.fillText('JENSEN!', 106, 316);
+    ctx.shadowColor = 'rgba(125,255,58,0.7)'; ctx.shadowBlur = 30;
+    ctx.fillStyle = '#7dff3a'; ctx.fillText('JENSEN!', 100, 310);
+    ctx.restore();
+    ctx.fillStyle = '#cfccc5'; ctx.font = '600 30px system-ui, sans-serif';
+    ctx.fillText('Fuja das espiãs, do Congresso', 72, 390);
+    ctx.fillText('e dos paparazzi.', 72, 430);
+    ctx.fillStyle = '#8d8a84'; ctx.font = `900 20px ${TITLE}`;
+    ctx.fillText('JOGO DE MEME · GRÁTIS · CELULAR E PC', 72, 560);
+  }
+
+  if (icon) drawIcon(icon); else drawOG();
+
+  document.getElementById('dl').addEventListener('click', () => {
+    const a = document.createElement('a');
+    a.download = icon ? `icon-${icon}.png` : 'og.png';
+    a.href = c.toDataURL('image/png');
+    a.click();
+  });
+})();
+</script>
+</body>
+</html>
